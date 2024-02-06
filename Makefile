@@ -15,20 +15,25 @@ OS = $(TOOLCHAIN)/bin/arm-none-eabi-size
 
 # Assembly directives.
 ASFLAGS += -c
+ASFLAGS += -O0
 ASFLAGS += -mcpu=$(MCU_SPEC)
 ASFLAGS += -mthumb
 ASFLAGS += -Wall
+# (Set error messages to appear on a single line.)
+ASFLAGS += -fmessage-length=0
 
 # C compilation directives
 CFLAGS += -mcpu=$(MCU_SPEC)
 CFLAGS += -mthumb
 CFLAGS += -Wall
 CFLAGS += -g
+# (Set error messages to appear on a single line.)
+CFLAGS += -fmessage-length=0
 # (Set system to ignore semihosted junk)
 CFLAGS += --specs=nosys.specs
 
 # Linker directives.
-LSCRIPT = ./$(LD_SCRIPT)
+LSCRIPT = ./ld/$(LD_SCRIPT)
 LFLAGS += -mcpu=$(MCU_SPEC)
 LFLAGS += -mthumb
 LFLAGS += -Wall
@@ -37,9 +42,12 @@ LFLAGS += -nostdlib
 LFLAGS += -lgcc
 LFLAGS += -T$(LSCRIPT)
 
-AS_SRC   =  ./core.S
-AS_SRC   += ./vector_table.S
-C_SRC    =  ./main.c
+AS_SRC   =  ./src/core.S
+AS_SRC   += ./src/vector_table.S
+C_SRC    =  ./src/main.c
+
+INCLUDE  =  -I./
+INCLUDE  += -I./device_headers
 
 OBJS  = $(AS_SRC:.S=.o)
 OBJS += $(C_SRC:.c=.o)
@@ -47,7 +55,7 @@ OBJS += $(C_SRC:.c=.o)
 .PHONY: all
 all: $(TARGET).bin
 
-%.o: %.s
+%.o: %.S
 	$(CC) -x assembler-with-cpp $(ASFLAGS) $< -o $@
 
 %.o: %.c
