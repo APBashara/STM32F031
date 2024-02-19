@@ -7,6 +7,7 @@ extern "C" {
 
 #include "stm32f0xx_hal.h"
 #include "stm32f031x6.h"
+#include "gpio.h"
 
 
 void Error_Handler(void);
