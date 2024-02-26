@@ -7,6 +7,8 @@ void TIM2_IRQ_handler(void);
 void StopTimer(TIM_TypeDef *TIMx);
 void Error_Handler(void);
 
+uint32_t priority;
+
 #define CORE_CLK 48000000 // 48MHz Core Clock
 
 void SystemClock_Config(void) {
@@ -26,10 +28,13 @@ void SystemClock_Config(void) {
 
 void TIM2_Enable() {
   RCC->APB1ENR |= RCC_APB1ENR_TIM2EN; // Enable TIM2 clock
+  TIM2->CR1 &= ~TIM_CR1_CEN; // Make sure the timer is Disabled
+  TIM2->CR1 &= ~TIM_CR1_DIR; // Count Up
   
   // Set Interrupt Priority and Enable the Interupt
-  __NVIC_SetPriority(TIM2_IRQn, 0x03);
-  __NVIC_EnableIRQ(TIM2_IRQn);
+  NVIC_SetPriority(TIM2_IRQn, 0x03);
+  NVIC_EnableIRQ(TIM2_IRQn);
+  // priority = NVIC_GetPriority(TIM2_IRQn); // Debug signal to see if the priority was set correctly Seems to work
 }
 
 /**
@@ -37,7 +42,6 @@ void TIM2_Enable() {
  * 
  * @param TIM Pointer to Timer Peripherial
  * @param ms Amount of time in ms before interrupt is triggered
- * @note TODO: Does not change Register Values for some reason
  */
 void StartTimer(TIM_TypeDef *TIM, uint16_t ms) {
   TIM->CR1 &= ~TIM_CR1_CEN; // Make sure the timer is Disabled
@@ -50,8 +54,9 @@ void StartTimer(TIM_TypeDef *TIM, uint16_t ms) {
   TIM->ARR = ms; // Reset every ms
 
   TIM->EGR |= TIM_EGR_UG; // Send update event to reset the timer
-  TIM->DIER |= TIM_DIER_UIE; // Enable Update Interrupt
+  // TIM->DIER |= TIM_DIER_UIE; // Enable Update Interrupt TODO: Causing the system to hang
   TIM->CR1 |= TIM_CR1_CEN; // Enable the timer
+  for (int i = 0; i < 100000; i++) { __asm__("nop"); } // Loop to test Debug
 }
 
 /**
