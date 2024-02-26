@@ -7,20 +7,21 @@ void TIM2_IRQ_handler(void);
 void StopTimer(TIM_TypeDef *TIMx);
 void Error_Handler(void);
 
-#define CORE_CLK 48000000
+#define CORE_CLK 48000000 // 48MHz Core Clock
 
 void SystemClock_Config(void) {
   FLASH->ACR |= (0x1 << FLASH_ACR_LATENCY_Pos); // 1 wait state, 48MHz Core Clock and 25Mhz Access
   FLASH->ACR |= FLASH_ACR_PRFTBE; // Enable Prefetch Buffer
 
-  RCC->CFGR2 |= (0b1 << RCC_CFGR2_PREDIV_Pos); // DIV = 2
-  RCC->CFGR |= (0b1010 << RCC_CFGR_PLLMUL_Pos); // MUL = 12
-
-  RCC->CR |= RCC_CR_PLLON; // Enable PLL
-  while (!(RCC->CR & RCC_CR_PLLRDY)) {} // Wait for PLL to be ready
-
-  RCC->CFGR |= (0b10 << RCC_CFGR_SW_Pos); // Select PLL as system clock
-  while (!(RCC->CFGR & RCC_CFGR_SWS_PLL)) {} // Wait for PLL to be system clock
+  RCC->CFGR &= ~(RCC_CFGR_PLLMUL | RCC_CFGR_PLLSRC); // Resest the PLL Multiplier and Source
+  RCC->CFGR |= (RCC_CFGR_PLLSRC_HSI_DIV2 | RCC_CFGR_PLLMUL12); // Set PLL to Div by 2 and Mul by 12
+  
+  RCC->CR |= (RCC_CR_PLLON); // Turn the PLL on and wait for it to be ready.
+  while (!(RCC->CR & RCC_CR_PLLRDY)) {};
+  
+  RCC->CFGR &= ~(RCC_CFGR_SW); // Select the PLL as the system clock source.
+  RCC->CFGR |= (RCC_CFGR_SW_PLL); // Select the PLL as the system clock source.
+  while (!(RCC->CFGR & RCC_CFGR_SWS_PLL)) {};
 }
 
 void TIM2_Enable() {
@@ -36,6 +37,7 @@ void TIM2_Enable() {
  * 
  * @param TIM Pointer to Timer Peripherial
  * @param ms Amount of time in ms before interrupt is triggered
+ * @note TODO: Does not change Register Values for some reason
  */
 void StartTimer(TIM_TypeDef *TIM, uint16_t ms) {
   TIM->CR1 &= ~TIM_CR1_CEN; // Make sure the timer is Disabled
@@ -43,9 +45,9 @@ void StartTimer(TIM_TypeDef *TIM, uint16_t ms) {
   RCC->APB1RSTR |= RCC_APB1RSTR_TIM2RST;
   RCC->APB1RSTR &= ~RCC_APB1RSTR_TIM2RST;
 
-  // TODO: Issue with the prescaler, need to figure out how to set it correctly
-  TIM->PSC = CORE_CLK / 1000; // Divide out the core clock
-  TIM->ARR = ms; // Set to the value of ms
+  TIM->PSC &= ~(TIM_PSC_PSC); // Clear the prescaler
+  TIM->PSC |= CORE_CLK / 1000; // Divide the clock by 1000 to get 1ms counter
+  TIM->ARR = ms; // Reset every ms
 
   TIM->EGR |= TIM_EGR_UG; // Send update event to reset the timer
   TIM->DIER |= TIM_DIER_UIE; // Enable Update Interrupt
