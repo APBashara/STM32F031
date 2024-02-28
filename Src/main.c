@@ -54,7 +54,7 @@ void StartTimer(TIM_TypeDef *TIM, uint16_t ms) {
   TIM->ARR = ms; // Reset every ms
 
   TIM->EGR |= TIM_EGR_UG; // Send update event to reset the timer
-  // TIM->DIER |= TIM_DIER_UIE; // Enable Update Interrupt TODO: Causing the system to hang
+  TIM->DIER |= TIM_DIER_UIE; // Enable Update Interrupt TODO: Causing the system to hang
   TIM->CR1 |= TIM_CR1_CEN; // Enable the timer
 }
 

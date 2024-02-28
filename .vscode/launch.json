@@ -14,7 +14,7 @@
             "device": "STM32F031K6",
             "interface": "swd",
             "preLaunchCommands": ["make -j8"],
-            "svdFile": "/home/alex/Documents/svd/STM32F0x1.svd",
+            "svdFile": "./STM32F0x1.svd",
         }
     ]
 }
