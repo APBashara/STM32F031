@@ -3,7 +3,7 @@
 void SystemClock_Config(void);
 void TIM2_Enable(void);
 void StartTimer(TIM_TypeDef *TIM, uint16_t ms);
-void TIM2_IRQ_handler(void);
+void TIM2_IRQHandler(void);
 void StopTimer(TIM_TypeDef *TIMx);
 void Error_Handler(void);
 
@@ -62,7 +62,7 @@ void StartTimer(TIM_TypeDef *TIM, uint16_t ms) {
  * @brief Fuction to handle update event interrupts
  * 
  */
-void TIM2_IRQ_handler(void) {
+void TIM2_IRQHandler(void) {
   // Handle a timer 'update' interrupt event
   if (TIM2->SR & TIM_SR_UIF) { // Check status register for update interrupt flag
     TIM2->SR &= ~(TIM_SR_UIF); // Reset the update interrupt flag
