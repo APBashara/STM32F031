@@ -3,7 +3,8 @@
         "cmsis_os.h": "c",
         "main.h": "c",
         "stm32f0xx_hal.h": "c",
-        "stm32f031x6.h": "c"
+        "stm32f031x6.h": "c",
+        "timer.h": "c"
     },
     "cortex-debug.armToolchainPath": "/usr/bin/",
     "cortex-debug.gdbPath": "/usr/bin/gdb-multiarch",

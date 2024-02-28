@@ -8,6 +8,7 @@ extern "C" {
 #include "stm32f0xx_hal.h"
 #include "stm32f031x6.h"
 #include "gpio.h"
+#include "timer.h"
 
 
 void Error_Handler(void);
@@ -20,6 +21,8 @@ void Error_Handler(void);
 #define SWCLK_GPIO_Port GPIOA
 #define VCP_RX_Pin GPIO_PIN_15
 #define VCP_RX_GPIO_Port GPIOA
+
+#define CORE_CLK 48000000 // 48MHz Core Clock
 
 #ifdef __cplusplus
 }
